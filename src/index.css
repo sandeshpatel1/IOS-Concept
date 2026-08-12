@@ -1,0 +1,158 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* ══════════════════════════════════════════════════════
+   iOS LIQUID GLASS — DESIGN TOKENS
+   Font stack tries native SF Pro first (real iOS/macOS
+   devices ship it), falls back to Inter everywhere else.
+══════════════════════════════════════════════════════ */
+:root {
+  --font-display: -apple-system, 'SF Pro Display', 'Inter', system-ui, sans-serif;
+  --font-body: -apple-system, 'SF Pro Text', 'Inter', system-ui, sans-serif;
+  --font-mono: 'SF Mono', 'JetBrains Mono', ui-monospace, monospace;
+
+  /* base surfaces */
+  --bg: #05060b;
+  --bg-1: #090c14;
+  --bg-2: #0d111c;
+  --bg-elevated: #121728;
+
+  /* text */
+  --text: #f5f6fb;
+  --text-2: rgba(245, 246, 251, 0.66);
+  --text-muted: rgba(245, 246, 251, 0.4);
+
+  /* glass */
+  --glass: rgba(255, 255, 255, 0.055);
+  --glass-strong: rgba(255, 255, 255, 0.10);
+  --glass-border: rgba(255, 255, 255, 0.14);
+  --glass-border-strong: rgba(255, 255, 255, 0.22);
+  --glass-blur: 26px;
+
+  /* iOS system accents */
+  --blue: #0a84ff;
+  --purple: #bf5af2;
+  --cyan: #64d2ff;
+  --pink: #ff375f;
+  --green: #30d158;
+  --orange: #ff9f0a;
+  --yellow: #ffd60a;
+
+  --liquid: linear-gradient(115deg, var(--blue) 0%, var(--purple) 52%, var(--cyan) 100%);
+  --liquid-soft: linear-gradient(115deg, rgba(10,132,255,0.35) 0%, rgba(191,90,242,0.35) 52%, rgba(100,210,255,0.35) 100%);
+
+  /* motion */
+  --ios-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --ios-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ios-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --radius-xl: 34px;
+  --radius-lg: 26px;
+  --radius-md: 18px;
+  --radius-sm: 12px;
+}
+
+* , *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { scroll-behavior: smooth; overflow-x: hidden; background: var(--bg); }
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+#root { position: relative; isolation: isolate; }
+
+img { max-width: 100%; display: block; }
+a { color: inherit; }
+button { font: inherit; cursor: pointer; }
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--glass-border-strong); border-radius: 10px; }
+::selection { background: var(--blue); color: #fff; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
+}
+
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; border-radius: 6px; }
+
+/* ══════════════════════════════════════════════════════
+   GLASS PRIMITIVES — reused across every section
+══════════════════════════════════════════════════════ */
+.glass {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+}
+.glass-strong {
+  background: var(--glass-strong);
+  border: 1px solid var(--glass-border-strong);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+}
+.glass-panel {
+  border-radius: var(--radius-lg);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.08) inset, 0 24px 60px rgba(0,0,0,0.45);
+}
+
+.liquid-text {
+  background: var(--liquid);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--text-2);
+  padding: 6px 13px 6px 10px;
+  border-radius: 100px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+}
+.eyebrow .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--liquid);
+}
+
+.section-kicker {
+  font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--blue); margin-bottom: 10px;
+  display: block;
+}
+.section-heading {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4.6vw, 3.1rem);
+  font-weight: 800; letter-spacing: -0.03em; line-height: 1.08;
+  color: var(--text);
+}
+
+.ios-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  font-family: var(--font-display); font-weight: 700; font-size: 0.92rem;
+  padding: 14px 26px; border-radius: 100px; border: none; cursor: pointer;
+  text-decoration: none; transition: transform 0.35s var(--ios-spring), box-shadow 0.35s var(--ios-ease);
+}
+.ios-btn-primary {
+  background: var(--liquid); color: #fff;
+  box-shadow: 0 8px 30px rgba(10,132,255,0.35);
+}
+.ios-btn-primary:hover { transform: translateY(-2px) scale(1.015); box-shadow: 0 14px 40px rgba(10,132,255,0.5); }
+.ios-btn-primary:active { transform: scale(0.97); }
+.ios-btn-glass {
+  background: var(--glass-strong); color: var(--text);
+  border: 1px solid var(--glass-border-strong);
+  backdrop-filter: blur(20px);
+}
+.ios-btn-glass:hover { background: var(--glass-strong); border-color: rgba(255,255,255,0.34); transform: translateY(-2px); }
+.ios-btn-glass:active { transform: scale(0.97); }
+
+.container { max-width: 1240px; margin: 0 auto; padding: 0 clamp(20px, 4vw, 60px); }
+
+@media (max-width: 640px) {
+  .section-heading { font-size: clamp(1.8rem, 8vw, 2.4rem); }
+}

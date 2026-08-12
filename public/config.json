@@ -1,0 +1,65 @@
+{
+  "name": "Sandesh Patel",
+  "title": "Full Stack Developer",
+  "email": "patelsandesh1@gmail.com",
+  "location": "Mumbai, India",
+  "status": "Open to Work",
+  "resumeUrl": "https://drive.google.com/file/d/1gG44LqlbaAl2vQcm3Jk8jPdqWUJmeV7y/view?usp=sharing",
+  "githubUsername": "sandeshpatel1",
+  "leetcodeUsername": "sandeshpatel1",
+  "profileImage": "/images/profile.jpg",
+  "linkedin": "https://www.linkedin.com/in/sandeshpatel1/",
+  "github": "https://github.com/sandeshpatel1",
+  "leetcode": "https://leetcode.com/sandeshpatel/",
+  "instagram": "https://www.instagram.com/patel_sandesh_/",
+  "about": {
+    "bio1": "I'm a Full Stack Developer at ATM Infotech with hands-on production experience in React.js, Node.js, Express, MongoDB, and SQL Server. I also work in C# and ASP.NET WebForms on real enterprise systems.",
+    "bio2": "I love building polished, functional interfaces that solve real problems — from CRM systems and SaaS tools to payment gateways and animated landing pages.",
+    "stats": [
+      { "icon": "💼", "num": "1+", "label": "Year at ATM Infotech" },
+      { "icon": "🚀", "num": "10+", "label": "Live Projects" },
+      { "icon": "⚡", "num": "1200+", "label": "Hours Coded" },
+      { "icon": "🎓", "num": "B.E.", "label": "Computer Science" }
+    ],
+    "timeline": [
+      {
+        "date": "2023 — Present",
+        "title": "Full Stack Developer",
+        "sub": "ATM Infotech · Mumbai",
+        "desc": "MERN stack, ASP.NET WebForms, SQL Server. Building CRM, parking management, museum sites, and SaaS tools."
+      },
+      {
+        "date": "2022 — 2023",
+        "title": "Freelance Developer",
+        "sub": "Self-employed · Remote",
+        "desc": "Delivered websites and internal tools for small business clients, sharpening full-stack skills before joining ATM Infotech."
+      },
+      {
+        "date": "2018 — 2022",
+        "title": "B.E. in Computer Science",
+        "sub": "University of Mumbai",
+        "desc": "Core CS: DSA, DBMS, OS, Networks. Multiple academic and personal projects."
+      }
+    ]
+  },
+  "backendUrl": "https://portfoliobackend-oy98.onrender.com/",
+  "fetchGithubProjects": true,
+  "pinnedProjects": [
+    {
+      "title": "INoteBook",
+      "desc": "Full-stack CRUD notes app with cloud storage and JWT authentication.",
+      "tags": ["React", "Node.js", "MongoDB"],
+      "github": "https://github.com/sandeshpatel1/INotes",
+      "demo": null,
+      "color": "#0a84ff"
+    },
+    {
+      "title": "FinEdge Payment",
+      "desc": "Modern payment platform landing page with animations. Live on Netlify.",
+      "tags": ["React", "JavaScript", "HTML/CSS"],
+      "github": "https://github.com/sandeshpatel1/FinEdgeWebsite",
+      "demo": "https://finedge-payment.netlify.app/",
+      "color": "#64d2ff"
+    }
+  ]
+}

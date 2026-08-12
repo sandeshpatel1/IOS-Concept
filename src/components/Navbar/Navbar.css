@@ -1,0 +1,123 @@
+/* ══════════════════════════════════════════════════════
+   DESKTOP — floating glass pill nav
+══════════════════════════════════════════════════════ */
+.ios-navbar-anchor {
+  /* Centering lives here via flexbox, NOT a transform — Framer Motion
+     takes full ownership of `transform` once you animate y/scale, which
+     would silently discard a CSS `translateX(-50%)` centering trick. */
+  position: fixed;
+  top: 18px; left: 0; right: 0; z-index: 900;
+  display: flex; justify-content: center;
+  pointer-events: none;
+}
+.ios-navbar {
+  pointer-events: auto;
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 8px 8px 20px;
+  border-radius: 100px;
+  background: rgba(18, 20, 30, 0.55);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  box-shadow: 0 14px 40px rgba(0,0,0,0.35);
+  transition: background 0.4s var(--ios-ease), box-shadow 0.4s var(--ios-ease), backdrop-filter 0.4s var(--ios-ease);
+}
+.ios-navbar.scrolled { background: rgba(10, 12, 20, 0.72); box-shadow: 0 18px 50px rgba(0,0,0,0.5); backdrop-filter: blur(30px) saturate(200%); }
+
+.ios-navbar-logo {
+  font-family: var(--font-display); font-weight: 900; font-size: 1.1rem;
+  letter-spacing: -0.03em; margin-right: 10px; display: flex; align-items: center;
+}
+.ios-navbar-logo .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--liquid); margin-left: 3px; }
+
+.ios-navbar-items { display: flex; list-style: none; gap: 2px; }
+.ios-nav-link {
+  display: flex; align-items: center; gap: 6px;
+  text-decoration: none; color: var(--text-2);
+  font-size: 0.82rem; font-weight: 600;
+  padding: 8px 14px; border-radius: 100px;
+  cursor: pointer; transition: color 0.25s, background 0.25s;
+}
+.ios-nav-link svg { font-size: 1rem; opacity: 0.85; }
+.ios-nav-link:hover { color: var(--text); background: rgba(255,255,255,0.06); }
+.ios-nav-link.active { color: #fff; background: var(--liquid); box-shadow: 0 4px 16px rgba(10,132,255,0.4); }
+
+.ios-navbar-cta {
+  font-family: var(--font-display); font-weight: 700; font-size: 0.8rem;
+  color: var(--text); text-decoration: none;
+  background: var(--glass-strong); border: 1px solid var(--glass-border-strong);
+  padding: 9px 18px; border-radius: 100px;
+  transition: transform 0.25s var(--ios-spring), background 0.25s;
+}
+.ios-navbar-cta:hover { transform: translateY(-1px); background: rgba(255,255,255,0.16); }
+
+@media (max-width: 900px) {
+  .ios-navbar-anchor { display: none; }
+}
+
+/* ══════════════════════════════════════════════════════
+   MOBILE — floating "Liquid Glass" pill nav (iOS 18 style)
+══════════════════════════════════════════════════════ */
+.ios-tabbar { display: none; }
+
+@media (max-width: 900px) {
+  .ios-tabbar {
+    display: block;
+    position: fixed; left: 0; right: 0; z-index: 900;
+    bottom: calc(14px + env(safe-area-inset-bottom, 0));
+    display: flex; justify-content: center;
+    padding: 0 14px;
+    pointer-events: none;
+  }
+  .ios-tabbar-inner {
+    pointer-events: auto;
+    position: relative;
+    display: flex; align-items: center;
+    gap: 0;
+    width: 100%; max-width: 460px;
+    height: 64px;
+    padding: 0 6px;
+    border-radius: 30px;
+    background: rgba(20, 22, 32, 0.55);
+    background-image: linear-gradient(rgba(20,22,32,0.55), rgba(20,22,32,0.55)),
+      linear-gradient(120deg, rgba(10,132,255,0.35), rgba(191,90,242,0.3), rgba(100,210,255,0.35));
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    border: 1.5px solid transparent;
+    backdrop-filter: blur(30px) saturate(190%);
+    -webkit-backdrop-filter: blur(30px) saturate(190%);
+    box-shadow: 0 18px 50px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.08);
+  }
+  .ios-tab-slot { flex: 1; display: flex; min-width: 0; }
+  .ios-tab-item {
+    position: relative;
+    width: 100%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    text-decoration: none; color: var(--text-muted);
+    font-size: 0.58rem; font-weight: 600;
+    height: 52px;
+    border-radius: 22px;
+    z-index: 1;
+    transition: color 0.25s;
+  }
+
+  /* The liquid glass blob — travels & stretches via measured left/width keyframes */
+  .tab-blob {
+    position: absolute; top: 6px; height: 44px;
+    border-radius: 22px;
+    background:
+      radial-gradient(circle at 32% 26%, rgba(255,255,255,0.55), rgba(255,255,255,0.06) 55%, transparent 72%),
+      linear-gradient(135deg, rgba(10,132,255,0.45), rgba(191,90,242,0.4), rgba(100,210,255,0.45));
+    box-shadow:
+      0 3px 14px rgba(10,132,255,0.35),
+      inset 0 0 0 1px rgba(255,255,255,0.4),
+      inset 0 0 12px rgba(255,255,255,0.15);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .ios-tab-icon-wrap { display: flex; align-items: center; justify-content: center; height: 20px; }
+  .ios-tab-icon { font-size: 1.22rem; transition: transform 0.3s var(--ios-spring); }
+  .ios-tab-item.tab-active { color: #fff; }
+  .ios-tab-item.tab-active .ios-tab-icon { transform: translateY(-1px) scale(1.05); }
+}

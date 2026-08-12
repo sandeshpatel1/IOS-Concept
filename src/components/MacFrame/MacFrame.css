@@ -1,0 +1,51 @@
+.mac-frame {
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  perspective: 1400px;
+}
+
+.mac-notch {
+  position: absolute;
+  top: 0; left: 50%; transform: translateX(-50%);
+  width: 90px; height: 16px;
+  background: #1a1c22;
+  border-radius: 0 0 10px 10px;
+  z-index: 3;
+}
+
+.mac-screen {
+  position: relative;
+  background: #15171f;
+  border-radius: 14px 14px 3px 3px;
+  padding: 16px 10px 10px;
+  box-shadow:
+    0 0 0 1.5px rgba(255,255,255,0.08),
+    0 40px 90px rgba(0,0,0,0.55);
+  overflow: hidden;
+  aspect-ratio: 16/10.4;
+}
+
+.mac-base {
+  height: 13px;
+  background: linear-gradient(180deg, #2a2d38, #1a1c24);
+  border-radius: 0 0 10px 10px;
+  position: relative;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+}
+.mac-base::before {
+  content: '';
+  position: absolute; top: 0; left: -3%; right: -3%;
+  height: 6px;
+  background: linear-gradient(180deg, #34384a, #20222c);
+  border-radius: 0 0 3px 3px;
+}
+.mac-base-notch {
+  position: absolute; top: 6px; left: 50%; transform: translateX(-50%);
+  width: 90px; height: 4px; border-radius: 3px;
+  background: rgba(0,0,0,0.4);
+}
+
+@media (max-width: 900px) {
+  .mac-frame { max-width: 460px; }
+}
