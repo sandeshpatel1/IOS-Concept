@@ -17,11 +17,12 @@ const navItems = [
 ];
 
 /**
- * The real iOS 18 "Liquid Glass" tab travel: a glassy blob that elongates
- * into the gap between the old and new tab mid-transition, then snaps back
- * to a circle at rest — not just a pill that fades/slides. Positions are
- * measured from the actual DOM (getBoundingClientRect) so the stretch
- * spans the true distance between icons, however many tabs there are.
+ * The real iOS 18 "Liquid Glass" tab travel — same behavior as Instagram's
+ * bottom nav: a glassy blob that elongates into the gap between the old and
+ * new tab mid-transition, then snaps back to a rounded-square capsule that
+ * hugs the active icon's own touch slot at rest (not a fixed-size dot).
+ * Positions AND widths are measured from the actual DOM (getBoundingClientRect)
+ * so the blob always matches each slot's real size, however many tabs there are.
  */
 function LiquidTabBlob({ activeKey, itemRefs, wrapRef }) {
   const [travel, setTravel] = useState(null); // { from:{left,width}, to:{left,width}, id }
@@ -34,7 +35,10 @@ function LiquidTabBlob({ activeKey, itemRefs, wrapRef }) {
     if (!wrap || !el) return null;
     const wrapRect = wrap.getBoundingClientRect();
     const r = el.getBoundingClientRect();
-    return { left: r.left - wrapRect.left + r.width / 2 - 22, width: 44 };
+    // Blob spans the tab's own slot (minus a small inset), matching the
+    // reference: the highlight is sized to the touch target, not the icon glyph.
+    const inset = 6;
+    return { left: r.left - wrapRect.left + inset, width: r.width - inset * 2 };
   }, [itemRefs, wrapRef]);
 
   useLayoutEffect(() => {
@@ -61,7 +65,7 @@ function LiquidTabBlob({ activeKey, itemRefs, wrapRef }) {
   if (!travel) return null;
   const { from, to } = travel;
   const bridgeLeft = Math.min(from.left, to.left);
-  const bridgeWidth = Math.abs(to.left - from.left) + 44;
+  const bridgeWidth = Math.abs(to.left - from.left) + Math.max(from.width, to.width);
 
   return (
     <motion.span
@@ -126,7 +130,8 @@ export default function Navbar({ config }) {
         </motion.nav>
       </div>
 
-      {/* Mobile floating "Liquid Glass" pill nav — same shrink/dip behavior */}
+      {/* Mobile floating "Liquid Glass" pill nav — icon-only, Instagram-style
+          blob travel behind the active tab, same shrink/dip behavior on scroll */}
       <motion.nav
         className="ios-tabbar"
         animate={{
@@ -148,22 +153,27 @@ export default function Navbar({ config }) {
                   className={`ios-tab-item${isActive ? ' tab-active' : ''}`}
                   onClick={() => setActive(to)}
                   onSetActive={() => setActive(to)}
+                  aria-label={label}
+                  title={label}
                 >
                   <span className="ios-tab-icon-wrap">
                     <Icon className="ios-tab-icon" />
                   </span>
-                  <span className="ios-tab-label">{label}</span>
                 </Link>
               </div>
             );
           })}
 
           <div className="ios-tab-slot" ref={el => { tabItemRefs.current.resume = el; }}>
-            <a href={resumeUrl} target="_blank" rel="noreferrer" className="ios-tab-item">
+            <a
+              href={resumeUrl} target="_blank" rel="noreferrer"
+              className="ios-tab-item"
+              aria-label="Resume"
+              title="Resume"
+            >
               <span className="ios-tab-icon-wrap">
                 <HiOutlineDocumentArrowDown className="ios-tab-icon" />
               </span>
-              <span className="ios-tab-label">Resume</span>
             </a>
           </div>
         </div>
