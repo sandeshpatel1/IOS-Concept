@@ -1,0 +1,22 @@
+#root { width: 100%; min-height: 100vh; }
+
+.scroll-progress {
+  position: fixed; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--liquid);
+  transform-origin: 0%;
+  z-index: 1000;
+  box-shadow: 0 0 12px rgba(10,132,255,0.6);
+}
+
+.back-top-btn {
+  position: fixed; bottom: 96px; right: 24px; z-index: 930;
+  width: 46px; height: 46px; border-radius: 15px;
+  color: var(--text); border: none;
+  display: flex; align-items: center; justify-content: center; font-size: 1.15rem;
+  transition: transform 0.25s var(--ios-spring);
+}
+.back-top-btn:hover { transform: translateY(-3px); }
+
+@media (max-width: 900px) {
+  .back-top-btn { bottom: 168px; right: 16px; }
+}

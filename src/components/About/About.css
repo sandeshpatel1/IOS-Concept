@@ -1,0 +1,144 @@
+.ios-about {
+  position: relative;
+  padding: 130px 0 100px;
+  background: var(--bg);
+}
+
+.about-lede {
+  max-width: 640px;
+  font-size: 1.02rem; line-height: 1.75; color: var(--text-2);
+  margin: 18px 0 46px;
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+/* ══════════════════════════════════════════════════════
+   3D JOURNEY — scroll-driven chapter cards + progress rail
+══════════════════════════════════════════════════════ */
+.journey-wrap { position: relative; display: flex; }
+
+.journey-rail {
+  position: relative;
+  width: 34px; flex-shrink: 0;
+  display: flex; justify-content: center;
+}
+.rail-track {
+  position: absolute; top: 6px; bottom: 6px; width: 2px;
+  background: var(--glass-border);
+  border-radius: 2px;
+}
+.rail-fill {
+  position: absolute; top: 6px; bottom: 6px; width: 2px;
+  background: var(--liquid);
+  border-radius: 2px;
+  transform-origin: top;
+}
+.rail-glow {
+  position: absolute; left: 50%;
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 14px var(--cyan), 0 0 30px rgba(100,210,255,0.6);
+  transform: translate(-50%, -50%);
+}
+
+.journey-phases {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column;
+  gap: 56px;
+}
+
+.phase-row { display: flex; gap: 0; position: relative; }
+.phase-marker {
+  position: absolute; left: -34px; top: 30px;
+  width: 34px; display: flex; justify-content: center;
+}
+.phase-dot {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--bg);
+  border: 3px solid var(--blue);
+  box-shadow: 0 0 0 4px var(--bg), 0 0 16px rgba(10,132,255,0.55);
+}
+
+.phase-card {
+  width: 100%;
+  padding: 26px 26px 24px;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.phase-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.phase-chapter {
+  font-size: 0.66rem; font-weight: 800; letter-spacing: 0.14em;
+  color: var(--blue); background: rgba(10,132,255,0.12);
+  padding: 4px 10px; border-radius: 100px;
+}
+.phase-date { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); }
+
+.phase-title { font-family: var(--font-display); font-size: 1.35rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 3px; }
+.phase-sub { font-size: 0.85rem; color: var(--text-2); margin-bottom: 18px; }
+
+.phase-quote {
+  display: flex; gap: 10px; align-items: flex-start;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px; border-bottom-left-radius: 5px;
+  padding: 13px 15px; margin-bottom: 16px;
+}
+.phase-quote-avatar {
+  width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
+  background: var(--glass-strong); border: 1px solid var(--glass-border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.62rem; font-weight: 800; color: var(--text-2);
+}
+.phase-quote p { font-size: 0.85rem; line-height: 1.6; color: var(--text); }
+
+.phase-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.phase-chip {
+  font-size: 0.66rem; font-weight: 700; padding: 5px 12px; border-radius: 100px;
+  background: rgba(191,90,242,0.1); color: var(--purple);
+  border: 1px solid rgba(191,90,242,0.25);
+}
+
+/* ── Right rail widgets ── */
+.about-rail { display: flex; flex-direction: column; gap: 18px; }
+.ios-widget { padding: 20px; }
+.widget-label {
+  display: block; font-size: 0.66rem; font-weight: 800;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted);
+  margin-bottom: 10px;
+}
+.widget-body { font-size: 0.88rem; line-height: 1.7; color: var(--text-2); }
+
+.contact-card .cc-row {
+  display: flex; justify-content: space-between; gap: 10px;
+  font-size: 0.82rem; padding: 8px 0;
+  border-top: 1px solid var(--glass-border);
+}
+.contact-card .cc-row:first-of-type { border-top: none; }
+.contact-card .cc-row span { color: var(--text-muted); }
+.contact-card .cc-row strong { color: var(--text); font-weight: 600; text-align: right; }
+.cc-green { color: var(--green) !important; }
+
+.stat-widgets-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.mini-widget {
+  padding: 16px; display: flex; flex-direction: column; gap: 4px;
+}
+.mw-icon { font-size: 1.2rem; }
+.mw-num { font-family: var(--font-display); font-size: 1.3rem; font-weight: 800; }
+.mw-label { font-size: 0.68rem; color: var(--text-muted); }
+
+@media (max-width: 900px) {
+  .about-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .journey-rail { width: 22px; }
+  .phase-marker { left: -22px; width: 22px; }
+  .journey-phases { gap: 44px; }
+  .phase-card { padding: 20px 18px 18px; }
+  .phase-title { font-size: 1.15rem; }
+}
