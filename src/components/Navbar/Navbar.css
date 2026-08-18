@@ -109,7 +109,7 @@
     position: relative;
     display: flex; align-items: center;
     width: 100%; height: 100%;
-    padding: 0 8px;
+    padding: 0 6px;
     border-radius: 34px;
     overflow: hidden;
   }
@@ -123,7 +123,7 @@
     margin: 5px 0;
     display: flex; align-items: center; justify-content: center;
     text-decoration: none; color: rgba(255,255,255,0.6);
-    border-radius: 22px;
+    border-radius: 20px;
     z-index: 1;
     -webkit-tap-highlight-color: transparent;
     transition: color 0.2s;
@@ -132,14 +132,17 @@
   /* The liquid glass blob — position/width are driven every frame by a
      Framer Motion spring (see MobileTabBar), continuously chasing either
      the active tab's center or the raw finger position. No CSS transition
-     needed here; the JS spring IS the animation. */
+     needed here; the JS spring IS the animation. Sized (in JS) to nearly
+     fill its tab cell — top/height here match .ios-tab-item almost exactly
+     so it reads as "occupying its slot", the way Instagram's highlight does,
+     rather than a small dot floating inside a lot of empty space. */
   .tab-blob {
-    position: absolute; top: 7px; height: 48px;
-    border-radius: 18px;
+    position: absolute; top: 5px; height: 52px;
+    border-radius: 20px;
     background: linear-gradient(135deg, rgba(10,132,255,0.55), rgba(191,90,242,0.5), rgba(100,210,255,0.55));
     box-shadow:
       inset 0 0 0 1px rgba(255,255,255,0.4),
-      inset 0 8px 14px rgba(255,255,255,0.14),
+      inset 0 10px 16px rgba(255,255,255,0.14),
       0 1px 6px rgba(10,132,255,0.22);
     z-index: 0;
     pointer-events: none;
@@ -147,14 +150,14 @@
   }
 
   .ios-tab-icon-wrap { display: flex; align-items: center; justify-content: center; }
-  .ios-tab-icon { font-size: 1.42rem; transition: transform 0.25s var(--ios-spring), color 0.2s; }
+  .ios-tab-icon { font-size: 1.52rem; transition: transform 0.25s var(--ios-spring), color 0.2s; }
   .ios-tab-item.tab-active { color: #fff; }
-  .ios-tab-item.tab-active .ios-tab-icon { transform: scale(1.08); }
+  .ios-tab-item.tab-active .ios-tab-icon { transform: scale(1.06); }
 }
 
 @media (max-width: 360px) {
   .ios-tabbar-inner { max-width: 100%; height: 58px; }
   .ios-tab-item { height: 48px; }
-  .tab-blob { height: 44px; top: 7px; }
-  .ios-tab-icon { font-size: 1.3rem; }
+  .tab-blob { height: 48px; top: 5px; }
+  .ios-tab-icon { font-size: 1.38rem; }
 }

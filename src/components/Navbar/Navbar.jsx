@@ -3,7 +3,7 @@ import { Link, scroller } from 'react-scroll';
 import { motion, useMotionValue, useSpring, useVelocity, useTransform } from 'framer-motion';
 import {
   HiOutlineHome, HiOutlineUser, HiOutlineSparkles,
-  HiOutlineSquares2X2, HiOutlineChatBubbleLeftRight, HiOutlineDocumentArrowDown,
+  HiOutlineSquares2X2, HiOutlineChatBubbleLeftRight,
 } from 'react-icons/hi2';
 import { useScrollDirection } from '../../hooks/useScrollDirection';
 import './Navbar.css';
@@ -16,11 +16,13 @@ const navItems = [
   { key: 'contact',  label: 'Contact',  to: 'contact',  Icon: HiOutlineChatBubbleLeftRight },
 ];
 
-const BLOB_SIZE = 48;
 // One single spring drives EVERY transition — taps, scroll-spy, and finger
 // drag all just move the same target value. That's what makes it feel like
 // one continuous physical object instead of separate tap/drag code paths.
 const FOLLOW_SPRING = { stiffness: 620, damping: 44, mass: 0.7 };
+const CAPSULE_INSET = 4; // px shaved off each side of the tab's own cell —
+                          // Instagram's highlight nearly fills the whole
+                          // slot, not a small dot floating inside it.
 
 /**
  * The real iOS 18 / Instagram "Liquid Glass" tab bar. The blob's center is a
@@ -54,29 +56,44 @@ function MobileTabBar({ config, tucked }) {
   const velocity = useVelocity(smoothX);
   // Subtle horizontal stretch proportional to how fast the blob is moving —
   // the "liquid" part of liquid glass. Settles to 1 the instant motion stops.
-  const stretch = useTransform(velocity, v => Math.min(1 + Math.abs(v) / 3200, 1.45));
-  const blobLeft = useTransform([smoothX, stretch], ([x, s]) => x - (BLOB_SIZE * s) / 2);
-  const blobWidth = useTransform(stretch, s => BLOB_SIZE * s);
+  const stretch = useTransform(velocity, v => Math.min(1 + Math.abs(v) / 3200, 1.35));
+  // Base capsule width — measured from the actual tab cell (see measureSlots
+  // below), NOT a fixed small size. All 5 tabs are equal-width flex slots so
+  // this is a single constant most of the time; it only changes on resize.
+  const baseWidth = useMotionValue(60);
+  const blobLeft = useTransform([smoothX, baseWidth, stretch], ([x, w, s]) => x - (w * s) / 2);
+  const blobWidth = useTransform([baseWidth, stretch], ([w, s]) => w * s);
 
-  const getCenter = useCallback((key) => {
+  const getRect = useCallback((key) => {
     const wrap = wrapRef.current;
     const el = itemRefs.current[key];
     if (!wrap || !el) return null;
     const wrapRect = wrap.getBoundingClientRect();
     const r = el.getBoundingClientRect();
-    return r.left - wrapRect.left + r.width / 2;
+    return { left: r.left - wrapRect.left, width: r.width, center: r.left - wrapRect.left + r.width / 2 };
   }, []);
+  const getCenter = useCallback((key) => getRect(key)?.center ?? null, [getRect]);
 
   const goToCenter = useCallback((key) => {
     const c = getCenter(key);
     if (c != null) targetX.set(c);
   }, [getCenter, targetX]);
 
+  // Measure the actual cell size and set the capsule to nearly fill it
+  // (small fixed inset each side) — this is what makes it read as "occupying
+  // its slot" the way Instagram's highlight does, instead of a small dot
+  // floating in empty space.
+  const measureCapsuleWidth = useCallback(() => {
+    const r = getRect('home');
+    if (r) baseWidth.set(Math.max(28, r.width - CAPSULE_INSET * 2));
+  }, [getRect, baseWidth]);
+
   // Seed the blob the moment the bar mounts, so it's visible around "Home"
   // immediately — no tap required first. The spring animates the first
   // ~150ms from 0 to the real position, which reads as a quick, deliberate
   // "arrive" rather than a flash — matches the reference feel on load.
   useLayoutEffect(() => {
+    measureCapsuleWidth();
     const c = getCenter('home');
     if (c != null) targetX.set(c);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -85,10 +102,13 @@ function MobileTabBar({ config, tucked }) {
   useEffect(() => { if (!dragging) goToCenter(active); }, [active, dragging, goToCenter]);
 
   useEffect(() => {
-    const onResize = () => { if (!dragging) goToCenter(activeRef.current); };
+    const onResize = () => {
+      measureCapsuleWidth();
+      if (!dragging) goToCenter(activeRef.current);
+    };
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
-  }, [dragging, goToCenter]);
+  }, [dragging, goToCenter, measureCapsuleWidth]);
 
   useEffect(() => () => clearTimeout(navTimerRef.current), []);
 
