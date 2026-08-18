@@ -1,0 +1,33 @@
+.ios-footer { position: relative; background: var(--bg); padding-bottom: 90px; }
+.footer-glow-line {
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--blue) 30%, var(--purple) 60%, transparent);
+  opacity: 0.5;
+}
+.footer-inner { padding: 56px 0 26px; }
+.footer-top {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  flex-wrap: wrap; gap: 28px; padding-bottom: 30px; border-bottom: 1px solid var(--glass-border);
+}
+.fb-logo { font-family: var(--font-display); font-weight: 900; font-size: 1.6rem; display: flex; align-items: center; }
+.fb-logo .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--liquid); margin-left: 4px; }
+.fb-tag { font-size: 0.82rem; color: var(--text-muted); margin-top: 8px; }
+
+.footer-nav { display: flex; gap: 22px; flex-wrap: wrap; }
+.footer-link { font-size: 0.84rem; color: var(--text-2); text-decoration: none; cursor: pointer; transition: color 0.2s; }
+.footer-link:hover { color: var(--blue); }
+
+.footer-socials { display: flex; gap: 8px; }
+.footer-social {
+  width: 38px; height: 38px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-2); text-decoration: none; transition: all 0.25s var(--ios-spring);
+}
+.footer-social:hover { color: #fff; transform: translateY(-3px); }
+
+.footer-bottom {
+  display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+  padding-top: 20px; font-size: 0.76rem; color: var(--text-muted);
+}
+
+@media (max-width: 900px) { .ios-footer { padding-bottom: 100px; } }

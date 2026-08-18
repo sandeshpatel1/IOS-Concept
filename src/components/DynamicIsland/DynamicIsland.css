@@ -1,0 +1,56 @@
+.dyn-island-anchor {
+  /* Bottom-left, mirroring the chatbot FAB on the bottom-right.
+     Fixed positioning lives here, NOT on the animated button — motion's
+     `layout` animation and `position: fixed` fight each other and cause
+     runaway size glitches if combined on the same element. */
+  position: fixed;
+  bottom: 24px; left: 20px;
+  z-index: 895;
+}
+
+.dyn-island {
+  position: relative;
+  background: #000;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 100px;
+  color: #fff;
+  display: inline-flex; align-items: center;
+  overflow: hidden;
+  max-height: 56px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.di-collapsed {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 18px;
+}
+.di-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--liquid);
+  box-shadow: 0 0 8px var(--blue);
+}
+.di-time-mini {
+  font-family: var(--font-display); font-size: 0.76rem; font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.di-expanded {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 20px 10px 12px;
+}
+.di-ring {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--liquid);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.di-ring-dot { width: 8px; height: 8px; border-radius: 50%; background: #000; }
+.di-info { display: flex; flex-direction: column; line-height: 1.2; }
+.di-time { font-family: var(--font-display); font-size: 0.86rem; font-weight: 800; }
+.di-time em { font-style: normal; font-size: 0.62rem; color: var(--cyan); margin-left: 2px; }
+.di-date { font-size: 0.62rem; color: rgba(255,255,255,0.55); margin-top: 1px; }
+
+@media (max-width: 900px) {
+  /* clear the floating mobile tab bar */
+  .dyn-island-anchor { bottom: 96px; left: 14px; }
+}
