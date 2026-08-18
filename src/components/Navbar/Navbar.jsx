@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect, useCallback, useLayoutEffect } from 'react';
 import { Link, scroller } from 'react-scroll';
-import { motion, useMotionValue, animate } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useVelocity, useTransform } from 'framer-motion';
 import {
   HiOutlineHome, HiOutlineUser, HiOutlineSparkles,
-  HiOutlineSquares2X2, HiOutlineChatBubbleLeftRight,
+  HiOutlineSquares2X2, HiOutlineChatBubbleLeftRight, HiOutlineDocumentArrowDown,
 } from 'react-icons/hi2';
 import { useScrollDirection } from '../../hooks/useScrollDirection';
 import './Navbar.css';
@@ -16,91 +16,79 @@ const navItems = [
   { key: 'contact',  label: 'Contact',  to: 'contact',  Icon: HiOutlineChatBubbleLeftRight },
 ];
 
-// A snappier, closer-to-critically-damped spring reads as a direct "snap"
-// rather than a bouncy overshoot — this is what makes Instagram's version
-// feel tight instead of jelly-like.
-const SPRING = { type: 'spring', stiffness: 520, damping: 40, mass: 0.7 };
-const HYSTERESIS = 10;     // px — must be clearly closer to switch drag-anchor, avoids flicker
-const BLOB_SIZE = 48;      // fixed capsule size — matches the icon's own footprint,
-                            // never bleeds toward neighboring tabs regardless of slot width
+const BLOB_SIZE = 48;
+// One single spring drives EVERY transition — taps, scroll-spy, and finger
+// drag all just move the same target value. That's what makes it feel like
+// one continuous physical object instead of separate tap/drag code paths.
+const FOLLOW_SPRING = { stiffness: 620, damping: 44, mass: 0.7 };
 
 /**
- * The real iOS 18 / Instagram "Liquid Glass" tab bar.
- * - At rest, a fixed-size capsule sits centered on the active tab (not sized
- *   to the whole flex slot — this is what keeps it from visually crowding
- *   neighbors and makes every gap read as equal).
- * - Dragging: the anchor continuously re-targets whichever tab is nearest
- *   your finger (with hysteresis), so the stretch never exceeds ~1 slot.
- * - Tapping: the blob snaps directly to the tapped tab immediately and
- *   ignores scroll-spy until the page finishes smooth-scrolling there, so it
- *   never hops through intermediate tabs while the page is still moving.
+ * The real iOS 18 / Instagram "Liquid Glass" tab bar. The blob's center is a
+ * single motion value; a spring continuously chases whatever that target is
+ * — your raw finger position while dragging, or the active tab's center on
+ * tap/scroll. Because it's ONE continuous spring the whole time, there is no
+ * discrete "snap to nearest tab and re-anchor" step while dragging — it
+ * glides smoothly the entire length of the bar and only resolves to a tab
+ * when you actually lift your finger.
  */
 function MobileTabBar({ config, tucked }) {
   const items = navItems;
 
   const [active, setActive] = useState('home');
   const [dragging, setDragging] = useState(false);
-  const [hotKey, setHotKey] = useState('home');
+  const [hotKey, setHotKey] = useState('home'); // icon highlight only — doesn't drive blob position
 
   const wrapRef = useRef(null);
   const itemRefs = useRef({});
-  const rectsRef = useRef(null);
-  const anchorKeyRef = useRef('home');
+  const centersRef = useRef({});          // cached {key: centerX} for the active drag gesture
   const dragRef = useRef({ x: 0, moved: false });
   const suppressClickRef = useRef(false);
-  const navigatingRef = useRef(false);   // true while a tap-triggered scroll is in flight
+  const navigatingRef = useRef(false);     // true while a tap-triggered scroll is in flight
   const navTimerRef = useRef(null);
   const activeRef = useRef('home');
   useEffect(() => { activeRef.current = active; }, [active]);
 
-  const blobLeft = useMotionValue(0);
-  const blobWidth = useMotionValue(BLOB_SIZE);
-  const blobScaleY = useMotionValue(1);
+  // Raw target the spring chases, plus the spring itself.
+  const targetX = useMotionValue(0);
+  const smoothX = useSpring(targetX, FOLLOW_SPRING);
+  const velocity = useVelocity(smoothX);
+  // Subtle horizontal stretch proportional to how fast the blob is moving —
+  // the "liquid" part of liquid glass. Settles to 1 the instant motion stops.
+  const stretch = useTransform(velocity, v => Math.min(1 + Math.abs(v) / 3200, 1.45));
+  const blobLeft = useTransform([smoothX, stretch], ([x, s]) => x - (BLOB_SIZE * s) / 2);
+  const blobWidth = useTransform(stretch, s => BLOB_SIZE * s);
 
-  // A "slot" rect (full flex-1 width, for hit-testing / nearest-tab math)
-  // vs a "capsule" rect (fixed BLOB_SIZE, centered in the slot, for what the
-  // blob actually renders as) — keeping these separate is what fixes the
-  // "blob bleeds into the next icon" look.
-  const getSlotRect = useCallback((key) => {
+  const getCenter = useCallback((key) => {
     const wrap = wrapRef.current;
     const el = itemRefs.current[key];
     if (!wrap || !el) return null;
     const wrapRect = wrap.getBoundingClientRect();
     const r = el.getBoundingClientRect();
-    const center = r.left - wrapRect.left + r.width / 2;
-    return { key, center, slotWidth: r.width };
+    return r.left - wrapRect.left + r.width / 2;
   }, []);
 
-  const getCapsuleRect = useCallback((key) => {
-    const s = getSlotRect(key);
-    if (!s) return null;
-    const width = Math.min(BLOB_SIZE, s.slotWidth - 8);
-    return { key, left: s.center - width / 2, width, center: s.center };
-  }, [getSlotRect]);
-
-  const snapTo = useCallback((key, animated = true) => {
-    const r = getCapsuleRect(key);
-    if (!r) return;
-    if (animated) {
-      animate(blobLeft, r.left, SPRING);
-      animate(blobWidth, r.width, SPRING);
-      animate(blobScaleY, 1, SPRING);
-    } else {
-      blobLeft.set(r.left);
-      blobWidth.set(r.width);
-      blobScaleY.set(1);
-    }
-  }, [getCapsuleRect, blobLeft, blobWidth, blobScaleY]);
+  const goToCenter = useCallback((key) => {
+    const c = getCenter(key);
+    if (c != null) targetX.set(c);
+  }, [getCenter, targetX]);
 
   // Seed the blob the moment the bar mounts, so it's visible around "Home"
-  // immediately — no tap required first.
-  useLayoutEffect(() => { snapTo(active, false); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // immediately — no tap required first. The spring animates the first
+  // ~150ms from 0 to the real position, which reads as a quick, deliberate
+  // "arrive" rather than a flash — matches the reference feel on load.
+  useLayoutEffect(() => {
+    const c = getCenter('home');
+    if (c != null) targetX.set(c);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Whenever the active tab changes AND we're not mid-drag, glide there.
+  useEffect(() => { if (!dragging) goToCenter(active); }, [active, dragging, goToCenter]);
 
   useEffect(() => {
-    const onResize = () => { if (!dragging) snapTo(activeRef.current, false); };
+    const onResize = () => { if (!dragging) goToCenter(activeRef.current); };
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
-  }, [dragging, snapTo]);
+  }, [dragging, goToCenter]);
 
   useEffect(() => () => clearTimeout(navTimerRef.current), []);
 
@@ -109,78 +97,71 @@ function MobileTabBar({ config, tucked }) {
     navigatingRef.current = true;
     setActive(key);
     setHotKey(key);
-    snapTo(key);
     if (fromDrag) scroller.scrollTo(key, { smooth: true, duration: 500, offset: -40 });
     // Scroll (and its scroll-spy side-effects) settles well within 500ms —
     // re-enable spy shortly after so manual scrolling still updates the tab.
     navTimerRef.current = setTimeout(() => { navigatingRef.current = false; }, 650);
   };
 
+  const findNearestKey = (x) => {
+    let best = activeRef.current, bestDist = Infinity;
+    for (const { key } of items) {
+      const c = centersRef.current[key];
+      if (c == null) continue;
+      const d = Math.abs(c - x);
+      if (d < bestDist) { bestDist = d; best = key; }
+    }
+    return best;
+  };
+
   const onPointerDown = (e) => {
     wrapRef.current?.setPointerCapture?.(e.pointerId);
     dragRef.current = { x: e.clientX, moved: false };
-    rectsRef.current = items.map(i => getSlotRect(i.key)).filter(Boolean);
-    anchorKeyRef.current = activeRef.current;
+    const c = {};
+    for (const { key } of items) { const v = getCenter(key); if (v != null) c[key] = v; }
+    centersRef.current = c;
     setDragging(true);
   };
 
   const onPointerMove = (e) => {
-    const rects = rectsRef.current;
     const wrap = wrapRef.current;
-    if (!rects || !wrap) return;
-
+    if (!wrap || !dragging) return;
     const wrapRect = wrap.getBoundingClientRect();
     const x = Math.max(0, Math.min(e.clientX - wrapRect.left, wrapRect.width));
     if (Math.abs(e.clientX - dragRef.current.x) > 6) dragRef.current.moved = true;
 
-    let nearest = rects[0], nearestDist = Infinity;
-    for (const r of rects) {
-      const d = Math.abs(r.center - x);
-      if (d < nearestDist) { nearestDist = d; nearest = r; }
-    }
-    const current = rects.find(r => r.key === anchorKeyRef.current) || nearest;
-    const currentDist = Math.abs(current.center - x);
-    const anchorSlot = (nearest.key !== current.key && currentDist - nearestDist > HYSTERESIS) ? nearest : current;
-    if (anchorSlot.key !== anchorKeyRef.current) {
-      anchorKeyRef.current = anchorSlot.key;
-      setHotKey(anchorSlot.key);
-    }
+    // Pure 1:1 continuous follow — no discrete re-anchoring, no stepwise
+    // jumps. This is what makes the drag feel like one fluid motion instead
+    // of hopping tab-to-tab.
+    targetX.set(x);
 
-    const anchor = getCapsuleRect(anchorSlot.key);
-    if (!anchor) return;
-    const half = anchor.width / 2;
-    const left = Math.min(anchor.left, x - half);
-    const right = Math.max(anchor.left + anchor.width, x + half);
-    blobLeft.set(left);
-    blobWidth.set(right - left);
-
-    const stretch = (right - left) - anchor.width;
-    blobScaleY.set(Math.max(0.82, 1 - stretch / 220));
+    const nearest = findNearestKey(x);
+    if (nearest !== hotKey) setHotKey(nearest);
   };
 
-  const endDrag = () => {
-    if (!rectsRef.current) return;
-    const nearest = anchorKeyRef.current;
+  const endDrag = (e) => {
+    if (!dragging) return;
+    const wrap = wrapRef.current;
+    const wrapRect = wrap?.getBoundingClientRect();
+    const x = wrapRect ? e.clientX - wrapRect.left : 0;
+    const nearest = findNearestKey(x);
+
     setDragging(false);
-    rectsRef.current = null;
 
     if (dragRef.current.moved) {
       suppressClickRef.current = true;
       setTimeout(() => { suppressClickRef.current = false; }, 250);
       goToTab(nearest, { fromDrag: true });
+      goToCenter(nearest); // spring glides from wherever the finger let go, smoothly, to the tab center
     } else {
-      snapTo(activeRef.current);
+      goToCenter(activeRef.current);
     }
   };
 
   return (
     <motion.nav
       className="ios-tabbar"
-      animate={{
-        y: tucked ? 20 : 0,
-        opacity: tucked ? 0.88 : 1,
-        scale: tucked ? 0.94 : 1,
-      }}
+      animate={{ y: tucked ? 20 : 0, scale: tucked ? 0.94 : 1 }}
       transition={{ type: 'spring', stiffness: 300, damping: 28 }}
     >
       <div
@@ -195,7 +176,7 @@ function MobileTabBar({ config, tucked }) {
         <div className="ios-tabbar-clip">
           <motion.span
             className="tab-blob"
-            style={{ left: blobLeft, width: blobWidth, scaleY: blobScaleY }}
+            style={{ left: blobLeft, width: blobWidth }}
           />
 
           {items.map(({ key, label, Icon }) => {
